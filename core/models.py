@@ -1,21 +1,21 @@
 from django.db import models
-import randrange from random
+from random import randrange
 
 # Create your models here.
 
-class TestSetCategory(models.Model)::
+class TestSetCampaign(models.Model):
   title = models.CharField(max_length=50, blank=True, null=True)
 
 class TestSet(models.Model):
   test_number = models.IntegerField()
   active = models.BooleanField(default=False)
-  category = models.ForeignKey("core.TestSetCategory", related_name='test_sets', on_delete=models.NULL)
+  campaign = models.ForeignKey("core.TestSetCampaign", related_name='test_sets', on_delete=models.SET_NULL, blank=True, null=True)
 
   def save(self, *args, **kwargs):
     # Turn off all other actives
-    if self.active self.__class__.objects.filter(active=True).exclude(pk=self.pk).exists():
+    if self.active and self.__class__.objects.filter(active=True).exclude(pk=self.pk).exists():
       self.__class__.objects.filter(active=True).exclude(pk=self.pk).update(active=False)
-    super(ModelName, self).save(*args, **kwargs) # Call the real save() method
+    super().save(*args, **kwargs) # Call the real save() method
 
   @classmethod
   def get_active_test_set(cls):
@@ -37,11 +37,11 @@ class TestSet(models.Model):
     random_number = randrange(min_range, max_range)
     
     max_clicks = self.versions.aggregate(models.Max('clicks_counter')).get('clicks_counter__max', 0)
-    if not max_clicks:
+    if max_clicks is None:
       return None
     
-    min_clicks_dict = self.versions.values('id').aggregate(models.Min('clicks_counter')) # Fetch only first
-    min_clicks = min_clicks.get('clicks_counter__min', 0)
+    min_clicks_dict = self.versions.values('id', 'clicks_counter').order_by('clicks_counter').first() # Fetch only first
+    min_clicks = min_clicks_dict.get('clicks_counter', 0)
     if (min_clicks < max_clicks * 0.9):
       return self.versions.filter(pk=min_clicks_dict.get('id')).first()
 
@@ -50,10 +50,10 @@ class TestSet(models.Model):
 
 
 class TestSetVersion(models.Model):
-  url = models.URLField(max_length=256, blank=True, null=True)
   clicks_counter = models.IntegerField(default=0)
-  test_set = models.ForeignKey("core.TestSet", related_name='versions', on_delete=models.NULL)
+  test_set = models.ForeignKey("core.TestSet", related_name='versions', on_delete=models.SET_NULL, blank=True, null=True)
   type_char = models.CharField(max_length=1) # A/B/I
+  url = models.URLField(max_length=256, blank=True, null=True)
 
   @property
   def switcher_num(self):
@@ -64,3 +64,11 @@ class TestSetVersion(models.Model):
     }
 
     return type_switcher.get(self.type_char, 0)
+
+  def increase_click(self):
+    self.clicks_counter = self.clicks_counter + 1
+    self.save()
+
+  @property
+  def redirect(self):
+    return self.type_char == 'I'
