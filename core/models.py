@@ -71,4 +71,4 @@ class TestSetVersion(models.Model):
 
   @property
   def redirect(self):
-    return self.type_char == 'I'
+    return self.url is not None
