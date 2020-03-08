@@ -17,9 +17,9 @@ def pwd():
 def prod():
     env.env_code = 'prod'
     env.hosts = ['tools.biggercake.com']    
-    env.base_directory = '/home/ubuntu/narrative/NarrativeABTesting/NarrativeABTesting'
-    env.uwsgi_ini_file = '/etc/uwsgi/apps-enabled/narrative-abtesting.ini'
-    env.venv_path = '/home/ubuntu/narrative/NarrativeABTesting/venv'
+    env.base_directory = '/home/ubuntu/Narrative-AB/NarrativeABTesting'
+    env.uwsgi_ini_file = '/etc/uwsgi/apps-enabled/narrative-ab.ini'
+    env.venv_path = '/home/ubuntu/Narrative-AB/venv'
     env.activate = 'source %(venv_path)s/bin/activate' % env
 
 def _restart_uwsgi(uwsgi_ini_file):
