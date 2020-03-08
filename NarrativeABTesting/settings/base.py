@@ -23,7 +23,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '6tg%_07*u8cws=r1g#ntpyf#a5-@i@752w$w31_r=y*4_p@%=l'
 
 ALLOWED_HOSTS = [
-    '*'
+    '*',
+    'narrative-ab.biggercake.com'
 ]
 
 
